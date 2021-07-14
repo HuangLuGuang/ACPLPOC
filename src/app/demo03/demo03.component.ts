@@ -11,11 +11,14 @@ import {HttpClient} from '@angular/common/http';
 })
 export class Demo03Component implements OnInit {
   map: any;
+  // tslint:disable-next-line:variable-name
+  device_count: number | undefined;
 
   constructor(private http: HttpClient) {
   }
 
   ngOnInit(): void {
+    this.dev_get_device();
     this.initMap();
   }
 
@@ -246,11 +249,37 @@ export class Demo03Component implements OnInit {
     map.on('click', this.onMapClick);
   }
 
-  // tslint:disable-next-line:typedef
-  onMapClick(e: { latlng: L.LatLngExpression; }) {
+  onMapClick(e: { latlng: L.LatLngExpression; }): void {
     L.popup()
       .setLatLng(e.latlng)
       .setContent('You clicked the map at ' + e.latlng.toString())
       .openOn(this.map);
   }
+
+  dev_get_device(): void {
+    const url = `http://1.117.179.214:5000/rpc/v1`;
+    const body = {
+      jsonrpc: '2.0',
+      method: 'callrpc',
+      params: {
+        table: 'menu_item',
+        context: {
+          sessionid: '123',
+          user: 'mt',
+          languageid: 2052
+        },
+        method: 'get_alldevice',
+        columns: {},
+        pkey: 'identifier'
+      },
+      id: '1'
+    };
+    this.http.post<{
+      result: any;
+    }>(url, body).subscribe(response => {
+      const data = response.result.message[0].message;
+      this.device_count = data.length;
+    });
+  }
 }
+
