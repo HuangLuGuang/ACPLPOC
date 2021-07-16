@@ -1,7 +1,9 @@
 import {Component, OnInit} from '@angular/core';
-// @ts-ignore
 
 import * as L from 'leaflet';
+
+import 'leaflet.heat/dist/leaflet-heat.js';
+
 import {HttpClient} from '@angular/common/http';
 
 @Component({
@@ -27,6 +29,8 @@ export class Demo03Component implements OnInit {
 
     // heatmapLayer.addTo(this.map);
     // 初始化地图，设置地理坐标和缩放等级
+
+
     const map = L.map('mapid', {
       maxZoom: 20,
       minZoom: 17,
@@ -34,11 +38,15 @@ export class Demo03Component implements OnInit {
       // layers: [heatmapLayer],
       center: [31.86, 117.27]
     }).setView([-0.00502, 0.00118], 20);
+    // @ts-ignore
+    const heat = L.heatLayer([[-0.00447, 0.00315], [-0.00447, 0.00258], [-37.8839, 175.3745188667], [-37.8869090667, 175.3657417333],
+      [-37.8894207167, 175.4015351167], [-37.8927369333, 175.4087452333], [-37.90585105, 175.4453463833],
+      [-37.9064188833, 175.4441556833]]).addTo(map);
     this.map = map;
     const southWest = map.unproject([0, 4 * 6144], map.getMaxZoom());
     const northEast = map.unproject([4 * 4096, 0], map.getMaxZoom());
     map.setMaxBounds(new L.LatLngBounds(southWest, northEast));
-    L.tileLayer('/assets/map-tiles/{z}/map_{x}_{y}.png', {
+    L.tileLayer('/assets/map-tiles_acpl/{z}/{x}_{y}.png', {
       maxZoom: 20,
       minZoom: 17,
       attribution: 'Map data &copy; MaboTech',
@@ -224,11 +232,11 @@ export class Demo03Component implements OnInit {
 
     // L.tileLayer('/assets/map-tiles/map_{x}_{y}.png', {
     //   maxZoom: 18,
-    // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,
-    // <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
+    // attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a>
+    // contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="http://cloudmade.com">CloudMade</a>'
     // }).addTo(map);
-    L.marker([51.5, -0.09]).addTo(map)
-      .bindPopup('<b>Hello world!</b><br />I am a popup.').openPopup();
+    // L.marker([51.5, -0.09]).addTo(map)
+    //   .bindPopup('<b>Hello world!</b><br />I am a popup.').openPopup();
 
     L.circle([51.508, -0.11], 0.0008, {
       color: 'red',
@@ -242,15 +250,11 @@ export class Demo03Component implements OnInit {
       [51.51, -0.047]
     ]).addTo(map).bindPopup('I am a polygon.');
 
-
-    const popup = L.popup();
-
-
-    map.on('click', this.onMapClick);
+    map.on('click', this.onMapClick, this);
   }
 
   onMapClick(e: { latlng: L.LatLngExpression; }): void {
-    L.popup()
+    const popup = L.popup()
       .setLatLng(e.latlng)
       .setContent('You clicked the map at ' + e.latlng.toString())
       .openOn(this.map);
